@@ -1,6 +1,6 @@
 # Weed Detection Robot 🌿
 
-Real-time weed detection system built on Raspberry Pi using YOLOv4 and OpenCV. Detects and classifies crop vs. weed in live camera feed for smart agriculture applications.
+Real-time crop vs. weed detection system deployed on Raspberry Pi using **YOLOv4 + OpenCV**. Processes live camera feed and draws bounding boxes with confidence scores — built for smart agriculture edge deployment.
 
 ## Demo
 
@@ -8,10 +8,11 @@ Real-time weed detection system built on Raspberry Pi using YOLOv4 and OpenCV. D
 
 ## How It Works
 
-1. Raspberry Pi camera captures live video feed
-2. YOLOv4 model processes each frame
-3. Bounding boxes drawn around detected weeds vs. crops
-4. Classification result displayed in real time
+1. Raspberry Pi camera captures live video frames
+2. Each frame is converted to a blob and passed through YOLOv4
+3. Non-Maximum Suppression (NMS) filters overlapping detections
+4. Bounding boxes + confidence scores drawn on frame in real time
+5. Press `q` to quit
 
 ## Tech Stack
 
@@ -19,25 +20,34 @@ Real-time weed detection system built on Raspberry Pi using YOLOv4 and OpenCV. D
 ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat&logo=opencv&logoColor=white)
 ![Raspberry Pi](https://img.shields.io/badge/Raspberry_Pi-A22846?style=flat&logo=raspberry-pi&logoColor=white)
 
-- **YOLOv4** — Object detection model
-- **OpenCV** — Image processing & camera interface
-- **Raspberry Pi** — Edge deployment hardware
+- **YOLOv4** (Darknet) — Object detection model
+- **OpenCV DNN** — Model inference + camera capture
+- **NumPy / Matplotlib** — Image processing + visualization
+- **Raspberry Pi 4** — Edge hardware
+
+## Model Config
+
+| Parameter | Value |
+|---|---|
+| Input size | 512 × 512 |
+| Confidence threshold | 0.5 |
+| NMS threshold | 0.5 |
+| Classes | `crop`, `weed` |
 
 ## Project Structure
 
 
+
 weed-detection-robot/
 ├── opencv/
-│ ├── weedDetectionFromCamera.py # Live camera detection
-│ ├── detection_with_opencv.ipynb # Notebook: training & testing
+│ ├── weedDetectionFromCamera.py # Live camera detection (Raspberry Pi)
+│ ├── detection_with_opencv.ipynb # Notebook: static image detection
 │ └── detection.jpeg # Sample detection output
-└── data/ # Dataset (not tracked — too large)
-├── images/ # Training images
-├── weights/ # YOLOv4 weights
-├── cfg/ # Model config
-└── names/ # Class labels (crop, weed)
-
-
+└── data/ # Not tracked — add locally
+├── images/ # Training/test images
+├── weights/crop_weed_detection.weights
+├── cfg/crop_weed.cfg
+└── names/obj.names
 
 
 
@@ -47,22 +57,21 @@ weed-detection-robot/
 ```bash
 git clone https://github.com/gorap50/weed-detection-robot.git
 cd weed-detection-robot
-pip install opencv-python
+pip install opencv-python numpy matplotlib
 ```
 
-Add your trained weights to `data/weights/` then run:
+Add your trained YOLOv4 weights to `data/weights/`, then:
 
+**Live camera (Raspberry Pi):**
 ```bash
 python opencv/weedDetectionFromCamera.py
 ```
 
-## Hardware
+**Static image detection:**
+Open `opencv/detection_with_opencv.ipynb` in Jupyter Notebook.
 
-- Raspberry Pi 4
-- Pi Camera Module
+## Hardware Requirements
+
+- Raspberry Pi 4 (2GB+ RAM)
+- Raspberry Pi Camera Module v2
 - microSD card (32GB+)
-
-## Dataset
-
-Crop and weed images with YOLO-format annotations.
-Classes: `crop`, `weed`
